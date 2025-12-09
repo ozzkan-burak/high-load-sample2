@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # --- 1. NoSQL VERİTABANI (MongoDB) ---
+  # Product.API burayı kullanacak.
+  mongo_db:
+    image: mongo:latest
+    container_name: firsat_mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    ports:
+      - "27017:27017" # MongoDB standart portu
+    volumes:
+      - ./mongo-data:/data/db # Veriler kaybolmasın (Volume)
+    networks:
+      - firsat-network
+
+  # MongoDB Arayüzü (Verileri görsel olarak görmek için)
+  mongo_express:
+    image: mongo-express
+    container_name: firsat_mongo_ui
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_USER}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_PASSWORD}
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongo_db:27017/
+    depends_on:
+      - mongo_db
+    networks:
+      - firsat-network
+
+  # --- 2. SQL VERİTABANI (PostgreSQL) ---
+  # Order.API ve Stock.API burayı kullanacak.
+  postgres_db:
+    image: postgres:16-alpine
+    container_name: firsat_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB} # Default DB
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    networks:
+      - firsat-network
+
+  # --- 3. CACHE & LOCK (Redis) ---
+  redis_cache:
+    image: redis:alpine
+    container_name: firsat_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - firsat-network
+
+  # --- 4. MESAJLAŞMA (RabbitMQ) ---
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: firsat_rabbit
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    networks:
+      - firsat-network
+
+# Tüm servislerin konuşabileceği ortak ağ
+networks:
+  firsat-network:
+    driver: bridge
