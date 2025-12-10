@@ -162,3 +162,7 @@ node_modules/
 
 # Local Environment variables
 .env
+
+# Docker data volumes
+**/mongo-data/
+**/postgres-data/
