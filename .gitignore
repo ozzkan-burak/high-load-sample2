@@ -163,6 +163,14 @@ node_modules/
 # Local Environment variables
 .env
 
-# Docker data volumes
-**/mongo-data/
-**/postgres-data/
+# MongoDB
+.mongo-data/
+mongo-data/
+data/db/
+*.lock
+mongod.lock
+storage.bson
+
+# Development Settings
+appsettings.Development.json
+*/appsettings.Development.json
