@@ -167,9 +167,22 @@ node_modules/
 .mongo-data/
 mongo-data/
 data/db/
+/data/db
+/data/log
+log/
+*.log
+*.log.*
+.dbshell
 *.lock
 mongod.lock
+*.wt
+*.bson
 storage.bson
+WiredTiger
+WiredTiger.lock
+WiredTiger.turtle
+WiredTigerLAS.wt
+_tmp/
 
 # Development Settings
 appsettings.Development.json
