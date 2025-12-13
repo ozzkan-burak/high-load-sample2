@@ -188,3 +188,15 @@ node_modules/
 
 # Local Environment variables
 .env
+
+# MongoDB
+.mongo-data/
+mongo-data/
+data/db/
+*.lock
+mongod.lock
+storage.bson
+
+# Development Settings
+appsettings.Development.json
+*/appsettings.Development.json
