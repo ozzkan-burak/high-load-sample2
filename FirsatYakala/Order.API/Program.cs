@@ -1,11 +1,31 @@
+using Microsoft.EntityFrameworkCore;
+using Order.API.Data
+
 var builder = WebApplication.CreateBuilder(args);
+
+// --- EF CORE AYARI ---
+builder.Services.AddDbContext<OrderDbContext>(options =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Postgres"));
+});
+// --------------------
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// --- OTOMATİK MIGRATION (Geliştirme Ortamı İçin) ---
+// Uygulama her başladığında veritabanı yoksa oluşturur.
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
+    db.Database.Migrate();
+}
+// ---------------------------------------------------
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -36,6 +56,8 @@ app.MapGet("/weatherforecast", () =>
 .WithName("GetWeatherForecast")
 .WithOpenApi();
 
+app.UseAuthorization();
+app.MapControllers();
 app.Run();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
