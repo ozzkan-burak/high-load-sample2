@@ -199,4 +199,12 @@ storage.bson
 
 # Development Settings
 appsettings.Development.json
-*/appsettings.Development.json
+**/appsettings.Development.json
+
+# Order.API Migrations
+FirsatYakala/Order.API/Migrations/
+**/Order.API/Migrations/
+
+# Postgres Data
+postgres-data/
+**/postgres-data/
