@@ -203,9 +203,12 @@ appsettings.Development.json
 appsettings development.json
 **/appsettings development.json
 
-# Order.API Migrations
-FirsatYakala/Order.API/Migrations/
-**/Order.API/Migrations/
+# Database Migrations & Logs
+**/Migrations/
+*ModelSnapshot.cs
+*.Snapshot.cs
+*.log
+
 
 # Postgres Data
 postgres-data/

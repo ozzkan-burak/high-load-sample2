@@ -11,9 +11,10 @@ namespace Order.API.Controllers
     private readonly OrderDbContext _context;
     private readonly HttpClient _httpClient;
 
-    public OrderController(OrderDbContext context)
+    public OrderController(OrderDbContext context, HttpClient httpClient)
     {
       _context = context;
+      _httpClient = httpClient;
     }
     [HttpPost]
     public async Task<IActionResult> CreateOrder(Models.Order order)
