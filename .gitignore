@@ -200,6 +200,8 @@ storage.bson
 # Development Settings
 appsettings.Development.json
 **/appsettings.Development.json
+appsettings development.json
+**/appsettings development.json
 
 # Order.API Migrations
 FirsatYakala/Order.API/Migrations/
