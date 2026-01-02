@@ -35,10 +35,10 @@ namespace Stock.API.Controllers
         {
            var stock = await _context.Stocks.FirstOrDefaultAsync(x => x.ProductId == model.ProductId);
            if(stock == null) return NotFound("Stock not found");
-           if(stock.Count < model.Count) return BadRequest("Not enough stock");
-           stock.Count -= model.Count;
+           if(stock.Quantity < model.Count) return BadRequest("Not enough stock");
+           stock.Quantity -= model.Count;
            await _context.SaveChangesAsync();
-           return Ok(new {Message = "Stock updated successfully", NewCount = stock.Count});
+           return Ok(new {Message = "Stock updated successfully", NewCount = stock.Quantity});
         }
         
     }
@@ -46,6 +46,6 @@ namespace Stock.API.Controllers
 
 public class StockUpdateDto
 {
-    public string ProductId { get; set; }
+    public string ProductId { get; set; } = string.Empty;
     public int Count { get; set; }
 }
