@@ -5,7 +5,7 @@ using Stock.API.Data;
 namespace Stock.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/stocks")]
     public class StockController : ControllerBase
     {
         private readonly StockDbContext _context;
@@ -20,6 +20,15 @@ namespace Stock.API.Controllers
         {
             var stocks = await _context.Stocks.ToListAsync();
             return Ok(stocks);
+        }
+
+        // Ürün stoğunu getir (Order.API tarafından kullanılır)
+        [HttpGet("{productId}")]
+        public async Task<IActionResult> GetStock(string productId)
+        {
+            var stock = await _context.Stocks.FirstOrDefaultAsync(x => x.ProductId == productId);
+            if (stock == null) return NotFound();
+            return Ok(stock.Quantity);
         }
         // Stok oluştur (Başlangıç verisi girmek için)
         [HttpPost]
