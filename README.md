@@ -1,43 +1,57 @@
-# High-Concurrency Inventory Management System (POC)
+# Microservices Flash Sale System (POC)
 
 ### 🎯 Project Overview
-This project serves as a **Proof of Concept (POC)** demonstrating how to handle high-traffic scenarios and prevent **Race Conditions** in an e-commerce environment.
+This project simulates a real-world **"Flash Sale"** scenario to demonstrate **Data Consistency** and **Concurrency Control** within a distributed microservices architecture.
 
-It simulates a "Black Friday" traffic spike where thousands of concurrent requests attempt to purchase the same limited stock item, ensuring **Data Consistency** and **Atomicity**.
+The system handles a high-traffic campaign where 20 concurrent users compete for a limited stock of 5 items, successfully preventing overselling through robust architectural patterns.
 
 ---
 
 ### 🏗️ Architect's Perspective
 
-#### 1. The Challenge (Business Problem)
-In high-load e-commerce systems, standard database transactions often fail to prevent overselling when multiple instances of a microservice try to update the stock simultaneously.
-* **Scenario:** 100 users try to buy the last 1 item at the exact same millisecond.
-* **Risk:** Without proper locking, the database might record negative stock, leading to cancelled orders and poor UX.
+#### 1. System Design & Polyglot Persistence
+I designed the system using a **Microservices Architecture**, selecting the best-fit database for each specific domain (Polyglot Persistence):
 
-#### 2. The Solution (Architecture)
-I implemented a robust **Concurrency Control** mechanism using **Distributed Locking** strategies.
-* **Simulated Traffic:** Created a load generator to simulate concurrent POST requests.
-* **Locking Mechanism:** Integrated **Redis** (or Optimistic Locking with EF Core) to ensure that only one process can modify the stock level at a time.
-* **Result:** Achieved 100% data consistency under high load, preventing any stock discrepancies.
+* **🛒 Product Service (MongoDB):** Chosen for high read performance and flexible schema, ideal for product catalogs where read operations heavily outnumber writes.
+* **📦 Stock Service (PostgreSQL):** Chosen for its strong ACID compliance and relational integrity, ensuring strictly accurate inventory tracking.
+* **📝 Order Service (PostgreSQL):** Handles transactional order data with relational consistency.
 
-#### 3. Why This Tech Stack?
-* **.NET (Core/9):** For its high-performance Kestrel server and strong support for asynchronous programming.
-* **Entity Framework Core:** To demonstrate how ORM handles concurrency tokens (RowVersion).
-* **Redis (Optional/If used):** Chosen for low-latency distributed locking across multiple server instances.
-* **JMeter / Apache Bench:** Used for stress testing the endpoints.
+#### 2. The Challenge: "The Flash Sale Race"
+* **Scenario:** A highly discounted product with only **5 units** in stock.
+* **Load Test:** Simulating **20 Concurrent Virtual Users (VUs)** attempting to purchase simultaneously using **k6**.
+* **Risk:** Race conditions causing "Overselling" (selling more items than available stock).
+
+#### 3. The Solution & Results
+Implemented strict concurrency controls (Optimistic/Pessimistic locking strategies) within the transactional boundaries of the Stock Service.
+
+* **Test Result:** Under the heavy load of 20 concurrent requests for 5 items, the system successfully processed exactly **5 orders** and rejected the remaining 15 with appropriate "Out of Stock" messages.
+* **Consistency:** 100% Data Integrity achieved.
+
+---
+
+### 🛠️ Tech Stack
+
+| Domain | Technology | Usage |
+| :--- | :--- | :--- |
+| **Backend Framework** | **.NET (Core/9)** | High-performance microservices |
+| **NoSQL Database** | **MongoDB** | Product Catalog (Read-heavy) |
+| **Relational Database** | **PostgreSQL** | Stock & Order Management (Transactional) |
+| **Load Testing** | **k6** | Simulating concurrent traffic & stress testing |
+| **Containerization** | **Docker** | Service orchestration |
 
 ---
 
-### ⚙️ Key Features
-* ✅ **Thread-Safe Inventory Updates:** Prevents race conditions.
-* ✅ **Scalable Architecture:** Designed to work in a distributed environment (e.g., Kubernetes pods).
-* ✅ **Performance Benchmarks:** Includes tests comparing "No-Lock" vs "With-Lock" scenarios.
-
-### 🚀 How to Run
-1. Clone the repo.
-2. Update the `appsettings.json` with your connection string.
-3. Run `dotnet run`.
-4. Use the included load-test script to simulate traffic.
+### 🚧 Roadmap: Architecture Evolution (Next Steps)
+To further decouple the services and improve system resilience, the next architectural phase involves:
+* **Event-Driven Architecture:** Integrating **RabbitMQ**.
+* **Async Processing:** Moving order placement to a queue-based system to handle traffic spikes more efficiently (削峰 - Peak Shaving).
 
 ---
-> *Note: This project highlights backend system design principles essential for scalable e-commerce platforms.*
+
+### 🚀 How to Run the Load Test
+1.  Spin up the environment: `docker-compose up -d`
+2.  Run the k6 script:
+    ```bash
+    k6 run load-tests/flash-sale-simulation.js
+    ```
+3.  Observe the database logs to verify exactly 5 items were deducted.
